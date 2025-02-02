@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+    <meta charset="UTF-8">
+    <title>生成弹幕</title>
+    <style>
+        .loading {
+            text-align: center;
+            margin-top: 100px;
+        }
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: #FFCCBC;
+            margin: 30px auto;
+            position: relative;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background: #FF5722;
+            animation: progress 3s linear;
+        }
+        @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <h2 style="color:#FF5722;">弹幕生成中...</h2>
+        <div class="progress-bar"></div>
+        <img src="assets/hotpot.gif" width="200">
+    </div>
+
+    <script>
+        // LeanCloud初始化
+        AV.init({
+            appId: 'YOUR_APP_ID',
+            appKey: 'YOUR_APP_KEY',
+            serverURL: 'YOUR_SERVER_URL'
+        });
+
+        // 从本地存储获取数据
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        const birthday = new Date(userData.birthday);
+        const age = new Date().getFullYear() - birthday.getFullYear();
+
+        // 弹幕模板库
+        const templates = [
+            `${userData.name}正用${age}岁的手速涮第${Math.ceil(Math.random()*5)}片毛肚`,
+            `${userData.name}在${age}岁解锁了${['番茄','菌汤','牛油'][Math.floor(Math.random()*3)]}锅底成就`,
+            `${age}岁的${userData.name}说要养生——然后点了变态辣`
+        ];
+
+        // 随机选择模板
+        const selectedTemplate = templates[Math.floor(Math.random() * templates.length)];
+
+        // 存储到数据库
+        const Stats = AV.Object.extend('Stats');
+        new Stats().save({
+            name: userData.name,
+            age: age,
+            template: selectedTemplate,
+            timestamp: new Date()
+        });
+
+        // 3秒后显示结果
+        setTimeout(() => {
+            alert(`您的专属弹幕：\n${selectedTemplate}`);
+            window.location.href = 'index.html';
+        }, 3000);
+    </script>
+</body>
+</html>

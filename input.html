@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+    <meta charset="UTF-8">
+    <title>填写信息</title>
+    <style>
+        .form-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(255,87,34,0.1);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #FFCCBC;
+            border-radius: 8px;
+        }
+        .submit-btn {
+            background: url('assets/hotpot-icon.png') center/contain no-repeat;
+            width: 80px;
+            height: 80px;
+            border: none;
+            margin: 20px auto;
+            display: block;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 style="color:#FF5722;">填写你的吃货档案</h2>
+        <form onsubmit="return submitForm()">
+            <input type="text" id="name" placeholder="输入昵称" required>
+            <input type="date" id="birthday" min="1900-01-01" max="2024-12-31" required>
+            <button type="submit" class="submit-btn"></button>
+        </form>
+    </div>
+
+    <script>
+        // 敏感词检测函数
+        async function checkSensitiveWord(text) {
+            const response = await fetch('https://你的敏感词检测API地址', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer YOUR_API_KEY'
+                },
+                body: JSON.stringify({ content: text })
+            });
+            const result = await response.json();
+            return result.isValid; // 根据API返回结构调整
+        }
+
+        async function submitForm() {
+            const name = document.getElementById('name').value;
+            const birthday = document.getElementById('birthday').value;
+
+            // 敏感词检测
+            if (!await checkSensitiveWord(name)) {
+                alert('昵称包含不合适内容');
+                return false;
+            }
+
+            // 暂存数据
+            localStorage.setItem('userData', JSON.stringify({
+                name: name,
+                birthday: birthday
+            }));
+
+            window.location.href = 'generate.html';
+            return false;
+        }
+    </script>
+</body>
+</html>
